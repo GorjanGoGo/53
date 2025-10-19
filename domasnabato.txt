@@ -1,0 +1,242 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Node{
+    int val;
+    Node* next;
+};
+
+struct List{
+    Node* start = nullptr;
+};
+
+void add(List &l, int x){
+    Node* p;
+    if(l.start){
+        p = l.start;
+        while(p->next) p = p->next;
+        p->next = new Node();
+        p->next->val = x;
+        p->next->next = nullptr;
+    }else{
+        l.start = new Node();
+        l.start->val = x;
+        l.start->next = nullptr;
+    }
+}
+
+void addSort(List &l, int x){
+    Node* nov = new Node;
+    nov->val = x;
+    nov->next = nullptr;
+    if(!l.start || x < l.start->val){
+        nov->next = l.start;
+        l.start = nov;
+        return;
+    }
+    Node* p = l.start;
+    while(p->next && p->next->val < x) p = p->next;
+    nov->next = p->next;
+    p->next = nov;
+}
+
+void printList(List &l){
+    Node* p = l.start;
+    while(p){
+        cout << p->val << " ";
+        p = p->next;
+    }
+    cout << "\n";
+}
+
+void bubbleSortList(List &l){
+    if(!l.start || !l.start->next) return;
+    bool swapped;
+    do{
+        swapped = false;
+        Node* p = l.start;
+        while(p->next){
+            if(p->val > p->next->val){
+                int tmp = p->val;
+                p->val = p->next->val;
+                p->next->val = tmp;
+                swapped = true;
+            }
+            p = p->next;
+        }
+    }while(swapped);
+}
+
+void insertionSortList(List &l){
+    if(!l.start || !l.start->next) return;
+    Node* i = l.start->next;
+    while(i){
+        int key = i->val;
+        Node* j = l.start;
+        while(j != i){
+            if(j->val > key) swap(j->val, key);
+            j = j->next;
+        }
+        i->val = key;
+        i = i->next;
+    }
+}
+
+void mergeSortUnique(List &l1, List &l2){
+    if(!l1.start){
+        l1.start = l2.start;
+        l2.start = nullptr;
+    }else{
+        Node* p = l1.start;
+        while(p->next) p = p->next;
+        p->next = l2.start;
+        l2.start = nullptr;
+    }
+    if(!l1.start || !l1.start->next) return;
+
+    bool swapped;
+    do{
+        swapped = false;
+        Node* p = l1.start;
+        while(p->next){
+            if(p->val > p->next->val){
+                swap(p->val, p->next->val);
+                swapped = true;
+            }
+            p = p->next;
+        }
+    }while(swapped);
+
+    Node* p = l1.start;
+    while(p && p->next){
+        if(p->val == p->next->val){
+            Node* tmp = p->next;
+            p->next = tmp->next;
+            delete tmp;
+        }else{
+            p = p->next;
+        }
+    }
+}
+
+struct DNode{
+    int val;
+    DNode* next;
+    DNode* prev;
+};
+
+struct doublyList{
+    DNode* head;
+    DNode* tail;
+    doublyList(){head=tail=nullptr;}
+};
+
+void addNode(doublyList& l,int value,int pos=-1){
+    DNode* n = new DNode{value,nullptr,nullptr};
+    if(!l.head){l.head=l.tail=n;return;}
+    if(pos<=0){n->prev=l.tail;l.tail->next=n;l.tail=n;return;}
+    DNode* p=l.head; int i=0;
+    while(p->next && i<pos-1){p=p->next;i++;}
+    n->next = p->next;
+    n->prev = p;
+    if(p->next) p->next->prev = n;
+    else l.tail = n;
+    p->next = n;
+}
+
+void removeNode(doublyList& l,int value){
+    DNode* p = l.head;
+    while(p){
+        if(p->val==value){
+            if(p->prev) p->prev->next=p->next;
+            else l.head=p->next;
+            if(p->next) p->next->prev=p->prev;
+            else l.tail=p->prev;
+            delete p;
+            return;
+        }
+        p = p->next;
+    }
+}
+
+DNode* search(doublyList& l,int value){
+    DNode* p = l.head;
+    while(p){if(p->val==value) return p; p=p->next;}
+    return nullptr;
+}
+
+void outputList(const doublyList& l){
+    cout<<"\n";
+    cout << "od pocetok ";
+    DNode* p=l.head;
+    while(p){cout<<p->val<<" "; p=p->next;}
+    cout<<"\n";
+    cout << "od kraj ";
+    p=l.tail;
+    while(p){cout<<p->val<<" "; p=p->prev;}
+    cout<<"\n";
+}
+
+int main(){
+    cout << "zadaca 1: sortirano vnesuvanje\n";
+
+    List l1;
+    int x1;
+    while(cin >> x1) {
+        addSort(l1,x1);
+        cout<<"niza: ";
+        printList(l1);
+    }
+    cout << "krajna niza: ";
+    printList(l1);
+
+    cin.clear();
+    cin.ignore(INT_MAX,'\n');
+
+    cout<<"\n";
+    cout << "zadaca 2: spoi dve listi i sort bez duplikati\n";
+
+    List l2,l3;
+    string line; int x;
+    cout << "vnesi lista 1: ";
+    getline(cin,line);
+    istringstream ss1(line);
+    while(ss1 >> x)
+        add(l2,x);
+
+    cout<<"\n";
+    cout << "vnesi lista 2: ";
+
+    getline(cin,line);
+    istringstream ss2(line);
+    while(ss2 >> x) add(l3,x);
+
+    mergeSortUnique(l2,l3);
+    cout << "krajna lista: ";
+    printList(l2);
+
+    cout<<"\n";
+    cout << "zadaca 3: bubble i insertion sort\n";
+
+    List l4;
+    while(cin >> x) add(l4,x);
+    printList(l4);
+    bubbleSortList(l4);
+    printList(l4);
+
+    doublyList D;
+    addNode(D,10);
+    addNode(D,20);
+    addNode(D,30);
+    addNode(D,15,1);
+    cout<<"posle dodavanje: ";
+    outputList(D);
+    cout<<"\n";
+    removeNode(D,20);
+    cout<<"posle brisenje (20):"; outputList(D);
+    DNode* f = search(D,15);
+    if(f) cout<<"najden element: "<<f->val<<"\n";
+    else cout<<"elementot ne e najden\n";
+
+    return 0;
+}
