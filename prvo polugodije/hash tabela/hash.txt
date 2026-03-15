@@ -1,0 +1,70 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class CBHT {
+    int M; // број на кофички
+    vector<vector<string>> table;
+
+public:
+    CBHT(int m) {
+        M = m;
+        table.resize(M);
+    }
+    int hashByLength(string word) {
+        return word.length() % M;
+    }
+    int hashBySum(string word) {
+        int sum = 0;
+        for (int i = 0; i < word.length(); i++)
+            sum += word[i];
+        return sum % M;
+    }
+    int hashByFirstChar(string word) {
+        return (word[0] - 'a') % M;
+    }
+    int hashByFirstTwoChars(string word) {
+        if (word.length() == 1)
+            return (word[0] - 'a') % M;
+        return ((word[0] - 'a') * 26 + (word[1] - 'a')) % M;
+    }
+    int getHash(string word, int type) {
+        if (type == 1) return hashByLength(word);
+        if (type == 2) return hashBySum(word);
+        if (type == 3) return hashByFirstChar(word);
+        return hashByFirstTwoChars(word);
+    }
+    void insert(string word, int type) {
+        int h = getHash(word, type);
+        table[h].push_back(word);
+    }
+    bool find(string word, int type) {
+        int h = getHash(word, type);
+        for (int i = 0; i < table[h].size(); i++) {
+            if (table[h][i] == word)
+                return true;
+        }
+        return false;
+    }
+    void printTable() {
+        for (int i = 0; i < M; i++) {
+            cout << i << ": ";
+            for (int j = 0; j < table[i].size(); j++)
+                cout << table[i][j] << " ";
+            cout << endl;
+        }
+    }
+};
+int main() {
+    CBHT h(101);
+    h.insert("apple", 1);
+    h.insert("banana", 1);
+    h.insert("cat", 1);
+    h.insert("apple", 2);
+    h.insert("banana", 2);
+    cout << h.find("apple", 1) << endl;
+    cout << h.find("dog", 1) << endl;
+    h.printTable();
+    return 0;
+}
